@@ -1,55 +1,96 @@
-# morsequest
+Berikut adalah draft struktur dan deskripsi README.md yang profesional, menarik, dan representatif untuk proyek MorseQuest kamu. Kamu bisa menyalin teks di bawah ini dan menyimpannya sebagai file README.md di root directory repositori (baik untuk Frontend maupun Backend).
 
-A new Flutter project.
+🚀 MorseQuest
+Petualangan seru belajar Sandi Morse melalui sentuhan jari!
 
-## Getting Started
+MorseQuest adalah aplikasi edukasi interaktif berbasis mobile yang dirancang untuk membuat proses belajar Sandi Morse menjadi menyenangkan, intuitif, dan tidak membosankan. Melalui pendekatan gamification, aplikasi ini mengajak pengguna—terutama anak-anak dan pemula—untuk menghafal dan mempraktikkan kode Morse (Alfabet dan Angka) melalui petualangan dan misi yang interaktif.
 
-This project is a starting point for a Flutter application.
+Proyek ini dibangun menggunakan Flutter untuk sisi Frontend (mobile app) dan Go (Golang) untuk sisi Backend (REST API).
 
-A few resources to get you started if this is your first Flutter project:
+✨ Fitur Utama
+📚 Kamus Sandi Morse Interaktif (Library)
+Pelajari 26 alfabet dan 10 angka beserta kode Morsenya (titik dan garis). Dilengkapi dengan fitur toggle pencarian dan audio (suara sandi).
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+🎮 Level Permainan Terstruktur
+Pilih tingkat kesulitan petualanganmu: Gampang (huruf dasar), Sedang (kata umum), atau Sulit (kosakata rumit) dengan antarmuka carousel yang mulus.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+📡 Transmisi Real-Time (Play/Transmit)
+Sistem input inovatif di mana pengguna dapat memasukkan kode Morse langsung dengan menekan tombol utama: Tap Short untuk Titik (Dot) dan Hold Long untuk Garis (Dash).
 
+👤 Profil & Progres Pemain
+Pantau pencapaian, kumpulkan Bintang & Koin dari setiap misi, dan tingkatkan Pangkat/Level Morse kamu.
 
+🛠️ Teknologi yang Digunakan
+Aplikasi ini dipisahkan menjadi dua repositori/bagian utama:
+
+Frontend (Mobile App)
+
+Framework: Flutter (Dart)
+
+State Management: (Isi dengan arsitektur yang kamu gunakan, misal: BLoC / Provider / GetX)
+
+Arsitektur: Feature-First / Folder-by-Feature (Shared & Features)
+
+Backend (REST API)
+
+Bahasa Pemrograman: Go (Golang)
+
+Framework: Gin Web Framework
+
+Live Reload: Air
+
+Arsitektur: Layered Architecture (Controllers, Services, Repositories)
+
+Database: (Isi dengan database pilihanmu, misal: PostgreSQL / MySQL)
+
+📂 Struktur Proyek
+Proyek ini menerapkan pemisahan kode yang rapi. Berikut adalah gambaran singkat strukturnya:
+
+Frontend (Flutter)
+Plaintext
 lib/
-│
-├── core/                   # Pengaturan inti dan utilitas global aplikasi
-│   ├── constants/          # Warna tema, ukuran font, konstanta API endpoint
-│   ├── theme/              # Konfigurasi ThemeData (warna ceria, font playful)
-│   └── utils/              # Fungsi bantuan (misal: format waktu, konverter morse)
-│
-├── data/                   # Layer komunikasi dengan Backend
-│   ├── models/             # Class model data (User, LeaderboardEntry, dll)
-│   ├── network/            # Setup HTTP Client (Dio/http) untuk request API
-│   └── storage/            # Local storage (Secure Storage) untuk simpan Token JWT
-│
-├── features/               # Halaman utama aplikasi, dibagi per fitur
-│   ├── auth/               # Fitur Login & Register
-│   │   ├── screens/        # UI Halaman (LoginScreen, RegisterScreen)
-│   │   └── widgets/        # Komponen khusus auth (FormInput, LoginButton)
-│   │
-│   ├── gameplay/           # Fitur Utama (Challenge Mode & Latihan)
-│   │   ├── logic/          # Logika timer, deteksi ketukan (dot/dash), nyawa
-│   │   ├── screens/        # UI Halaman (ChallengeScreen, LobbyScreen)
-│   │   └── widgets/        # Komponen (TapButton, HealthBar, TimerWidget)
-│   │
-│   ├── library/            # Fitur Kamus Morse
-│   │   ├── screens/        # UI Halaman (MorseLibraryScreen)
-│   │   └── widgets/        # Komponen khusus (MorseGridTile)
-│   │
-│   ├── leaderboard/        # Fitur Papan Peringkat
-│   │   └── screens/        # UI Halaman (LeaderboardScreen)
-│   │
-│   └── profile/            # Fitur Profil User
-│       └── screens/        # UI Halaman (ProfileScreen, SettingsScreen)
-│
-├── shared/                 # Komponen UI global yang dipakai di banyak tempat
-│   ├── widgets/            # Custom button chunky, dialog pop-up, loading indicator
-│   └── layouts/            # Dynamic Header, Bottom Navigation Bar
-│
-└── main.dart               # Titik awal aplikasi (Entry point)
+├── core/       # Konstanta, Tema, Utilities
+├── data/       # Model, Network, Storage lokal
+├── features/   # Fitur utama (Auth, Library, Main Page, Game, Profile, About)
+│   └── [feature_name]/
+│       ├── logic/
+│       ├── screens/
+│       └── widgets/
+└── shared/     # Widget global (seperti Custom Bottom Nav)
+Backend (Golang)
+Plaintext
+morsequest-backend/
+├── cmd/api/          # Entry point utama aplikasi (main.go)
+├── internal/         # Kode tertutup aplikasi
+│   ├── config/       # Setup database
+│   ├── controllers/  # Handler HTTP (Input/Output API)
+│   ├── models/       # Struct data (User, Level, dll)
+│   ├── repositories/ # Query langsung ke Database
+│   ├── routes/       # Definisi endpoint API
+│   └── services/     # Logika bisnis
+└── pkg/              # Helper dan utilitas publik
+🚀 Cara Menjalankan Proyek (Getting Started)
+Prasyarat
+Flutter SDK terinstal (untuk Frontend).
+
+Go terinstal beserta air untuk live-reloading (untuk Backend).
+
+Emulator Android/iOS atau device fisik.
+
+Menjalankan Backend (Golang)
+Buka terminal dan masuk ke folder backend.
+
+Jalankan perintah go mod tidy untuk mengunduh dependensi.
+
+Jalankan server dengan perintah:
+
+air
+
+4. Server akan berjalan di `http://localhost:8080`.
+
+### Menjalankan Frontend (Flutter)
+1. Buka terminal dan masuk ke folder frontend.
+2. Jalankan perintah `flutter pub get` untuk mengunduh paket.
+3. Jalankan aplikasi di emulator atau perangkat fisik dengan perintah:
+   ```bash
+   flutter run
