@@ -1,45 +1,35 @@
 package main
 
 import (
+	"database/sql"
 	"log"
-	"net/http"
-	"os"
-
-	"morsequest-backend/internal/config" // Sesuaikan dengan nama modul kamu
+	"morsequest-backend/internal/handlers"
+	"morsequest-backend/internal/repositories"
+	"morsequest-backend/internal/routes"
+	"morsequest-backend/internal/services"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 func main() {
-	// 1. Load file .env
-	err := godotenv.Load()
+	// 1. Inisialisasi Database
+	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost:5432/morsequest-db?sslmode=disable")
 	if err != nil {
-		log.Println("Peringatan: File .env tidak ditemukan, menggunakan environment default sistem")
+		log.Fatal(err)
 	}
 
-	// 2. Inisialisasi Database
-	config.ConnectDatabase()
+	// 2. Setup Dependency Injection
+	userRepo := repositories.NewUserRepository(db)
+	authService := services.NewAuthService(userRepo)
+	authHandler := handlers.NewAuthHandler(authService)
 
-	// 3. Setup Router
-	router := gin.Default()
+	// 3. Inisialisasi Gin Engine
+	r := gin.Default()
 
-	// Route Test
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-			"status":  "Server MorseQuest Berjalan dengan Database PostgreSQL!",
-		})
-	})
+	// 4. Daftarkan Routes
+	routes.SetupRoutes(r, authHandler)
 
-	// 4. Jalankan Server
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	log.Printf("Server berjalan di http://localhost:%s\n", port)
-	if err := router.Run(":" + port); err != nil {
-		log.Fatalf("Gagal menjalankan server: %v", err)
-	}
+	// 5. Jalankan Server di port 3000
+	log.Fatal(r.Run(":3000"))
 }
