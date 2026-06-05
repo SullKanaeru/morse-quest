@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS words_dictionary (
+    id SERIAL PRIMARY KEY,
+    word VARCHAR(50) UNIQUE NOT NULL,
+    difficulty VARCHAR(20) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);

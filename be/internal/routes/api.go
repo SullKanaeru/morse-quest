@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(r *gin.Engine, authHandler *handlers.AuthHandler) {
+func SetupRoutes(r *gin.Engine, authHandler *handlers.AuthHandler, wordHandler *handlers.WordHandler) {
 
 	api := r.Group("/api")
 
@@ -28,5 +28,12 @@ func SetupRoutes(r *gin.Engine, authHandler *handlers.AuthHandler) {
 				"message": "Selamat! Kamu berhasil masuk ke area rahasia dengan token yang valid.",
 			})
 		})
+	}
+
+	gameGroup := api.Group("/game")
+	gameGroup.Use(middleware.Protected())
+	{
+		// Akses via: GET /api/game/words?difficulty=Sedang
+		gameGroup.GET("/words", wordHandler.GetGameWords) 
 	}
 }

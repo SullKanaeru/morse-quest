@@ -23,12 +23,16 @@ func main() {
 	userRepo := repositories.NewUserRepository(db)
 	authService := services.NewAuthService(userRepo)
 	authHandler := handlers.NewAuthHandler(authService)
+	
+	wordRepo := repositories.NewWordRepository(db)
+	wordService := services.NewWordService(wordRepo)
+	wordHandler := handlers.NewWordHandler(wordService)
 
 	// 3. Inisialisasi Gin Engine
 	r := gin.Default()
 
 	// 4. Daftarkan Routes
-	routes.SetupRoutes(r, authHandler)
+	routes.SetupRoutes(r, authHandler, wordHandler)
 
 	// 5. Jalankan Server di port 3000
 	log.Fatal(r.Run(":3000"))
