@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// --- DATA MODEL & FACTUAL MORSE DICTIONARY ---
 class MorseData {
   final String char;
   final String code;
@@ -8,7 +7,6 @@ class MorseData {
   MorseData(this.char, this.code);
 }
 
-// Data Alfabet A-Z
 final List<MorseData> alphabetMorse = [
   MorseData('A', '.-'),
   MorseData('B', '-...'),
@@ -38,7 +36,6 @@ final List<MorseData> alphabetMorse = [
   MorseData('Z', '--..'),
 ];
 
-// Data Angka 0-9
 final List<MorseData> numberMorse = [
   MorseData('1', '.----'),
   MorseData('2', '..---'),
@@ -52,7 +49,6 @@ final List<MorseData> numberMorse = [
   MorseData('0', '-----'),
 ];
 
-// --- 1. TITLE WIDGET ---
 class LibraryTitle extends StatelessWidget {
   const LibraryTitle({Key? key}) : super(key: key);
 
@@ -85,7 +81,6 @@ class LibraryTitle extends StatelessWidget {
   }
 }
 
-// --- 2. CUSTOM TOGGLE SWITCH ---
 class CustomToggle extends StatelessWidget {
   final bool isAlphabet;
   final ValueChanged<bool> onChanged;
@@ -107,7 +102,6 @@ class CustomToggle extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Background Kuning yang bergeser
           AnimatedAlign(
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeInOut,
@@ -130,7 +124,6 @@ class CustomToggle extends StatelessWidget {
               ),
             ),
           ),
-          // Teks Label
           Row(
             children: [
               Expanded(
@@ -179,7 +172,6 @@ class CustomToggle extends StatelessWidget {
   }
 }
 
-// --- 3. MORSE GRID & CARD ---
 class MorseCard extends StatelessWidget {
   final MorseData data;
   final VoidCallback onTap;
@@ -204,9 +196,7 @@ class MorseCard extends StatelessWidget {
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8,
-        ), // Tambahkan padding sedikit
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -219,23 +209,18 @@ class MorseCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-
-            // --- BAGIAN INI YANG DIUPDATE ---
             Flexible(
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: _buildMorseSymbols(data.code),
               ),
             ),
-
-            // -------------------------------
           ],
         ),
       ),
     );
   }
 
-  // Fungsi untuk mengubah string ".-" menjadi widget UI (titik kuning, garis merah)
   Widget _buildMorseSymbols(String code) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -257,7 +242,7 @@ class MorseCard extends StatelessWidget {
             width: 16,
             height: 6,
             decoration: BoxDecoration(
-              color: const Color(0xFFE53935), // Merah untuk dash
+              color: const Color(0xFFE53935),
               borderRadius: BorderRadius.circular(4),
             ),
           );

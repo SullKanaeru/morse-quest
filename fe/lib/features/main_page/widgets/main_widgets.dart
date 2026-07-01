@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:morsequest/shared/utils/constants.dart';
 
-// --- 1. HEADER WIDGET ---
 class MainHeader extends StatelessWidget {
   const MainHeader({Key? key}) : super(key: key);
 
@@ -57,7 +57,6 @@ class MainHeader extends StatelessWidget {
   }
 }
 
-// --- 2. TITLE WIDGET ---
 class MainTitle extends StatelessWidget {
   const MainTitle({Key? key}) : super(key: key);
 
@@ -91,135 +90,6 @@ class MainTitle extends StatelessWidget {
   }
 }
 
-// --- 3. LEVEL SELECTOR / CARD WIDGET ---
-class LevelSelector extends StatelessWidget {
-  final VoidCallback onPrev;
-  final VoidCallback onNext;
-  final String levelTitle;
-  final String levelDescription;
-  final String starCount;
-
-  const LevelSelector({
-    Key? key,
-    required this.onPrev,
-    required this.onNext,
-    required this.levelTitle,
-    required this.levelDescription,
-    required this.starCount,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _buildArrowButton(Icons.arrow_back_ios_new, onPrev),
-          const SizedBox(width: 20),
-          Container(
-            width: 200,
-            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.15),
-                  spreadRadius: 2,
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFD500),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.star, color: Colors.white, size: 16),
-                      const SizedBox(width: 4),
-                      Text(
-                        starCount,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  levelTitle,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  levelDescription,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 20),
-          _buildArrowButton(Icons.arrow_forward_ios, onNext),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildArrowButton(IconData icon, VoidCallback onTap) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: IconButton(
-        icon: Icon(icon, size: 18),
-        color: Colors.black87,
-        onPressed: onTap,
-      ),
-    );
-  }
-}
-
-// --- DATA CLASS UNTUK LEVEL ---
-class LevelData {
-  final int starCount;
-  final String title;
-  final String description;
-
-  LevelData({
-    required this.starCount,
-    required this.title,
-    required this.description,
-  });
-}
-
-// --- 3. LEVEL CAROUSEL WIDGET ---
 class LevelCarousel extends StatelessWidget {
   final PageController pageController;
   final List<LevelData> levels;
@@ -245,23 +115,19 @@ class LevelCarousel extends StatelessWidget {
         children: [
           _buildArrowButton(Icons.arrow_back_ios_new, onPrev),
           const SizedBox(width: 15),
-
-          // Area PageView untuk Card Level
           SizedBox(
-            width: 220, // Lebar card + jarak aman untuk shadow
-            height: 240, // Tinggi card + jarak aman untuk shadow
+            width: 220,
+            height: 240,
             child: PageView.builder(
               controller: pageController,
               onPageChanged: onPageChanged,
-              physics:
-                  const BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               itemBuilder: (context, index) {
                 final realIndex = index % levels.length;
                 return Center(child: _LevelCard(data: levels[realIndex]));
               },
             ),
           ),
-
           const SizedBox(width: 15),
           _buildArrowButton(Icons.arrow_forward_ios, onNext),
         ],
@@ -292,7 +158,6 @@ class LevelCarousel extends StatelessWidget {
   }
 }
 
-// --- SUB-WIDGET: LEVEL CARD ---
 class _LevelCard extends StatelessWidget {
   final LevelData data;
 
@@ -302,7 +167,7 @@ class _LevelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 190,
-      margin: const EdgeInsets.symmetric(vertical: 10), // Jarak untuk shadow
+      margin: const EdgeInsets.symmetric(vertical: 10),
       padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -319,7 +184,6 @@ class _LevelCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Badge Bintang
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
@@ -329,7 +193,6 @@ class _LevelCard extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Render bintang sesuai jumlah
                 ...List.generate(
                   data.starCount,
                   (index) =>
@@ -371,7 +234,6 @@ class _LevelCard extends StatelessWidget {
   }
 }
 
-// --- 4. PAGINATION DOTS ---
 class PaginationDots extends StatelessWidget {
   final int totalDots;
   final int activeIndex;
@@ -406,7 +268,6 @@ class PaginationDots extends StatelessWidget {
   }
 }
 
-// --- 5. PLAY BUTTON ---
 class PlayButton extends StatelessWidget {
   final VoidCallback onPressed;
 

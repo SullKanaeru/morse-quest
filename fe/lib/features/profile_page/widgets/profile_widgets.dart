@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// --- 1. HEADER PROFIL ---
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({Key? key}) : super(key: key);
 
@@ -36,7 +35,7 @@ class ProfileHeader extends StatelessWidget {
                 const Icon(Icons.star, color: Colors.amber, size: 16),
                 const SizedBox(width: 4),
                 const Text(
-                  '120',
+                  '15',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                 ),
                 const SizedBox(width: 8),
@@ -45,7 +44,7 @@ class ProfileHeader extends StatelessWidget {
                 const Icon(Icons.monetization_on, color: Colors.grey, size: 16),
                 const SizedBox(width: 4),
                 const Text(
-                  '50',
+                  '2500',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                 ),
               ],
@@ -57,9 +56,19 @@ class ProfileHeader extends StatelessWidget {
   }
 }
 
-// --- 2. KARTU PROFIL UTAMA (BIRU) ---
 class ProfileInfoCard extends StatelessWidget {
-  const ProfileInfoCard({Key? key}) : super(key: key);
+  final String username;
+  final String rank;
+  final int points;
+  final int hints;
+
+  const ProfileInfoCard({
+    Key? key,
+    required this.username,
+    required this.rank,
+    required this.points,
+    required this.hints,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +77,7 @@ class ProfileInfoCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 24),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: const Color(0xFF0277BD), // Warna biru sesuai desain
+        color: const Color(0xFF0277BD),
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
@@ -81,7 +90,6 @@ class ProfileInfoCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Avatar dengan Level Badge
           Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.bottomRight,
@@ -94,11 +102,9 @@ class ProfileInfoCard extends StatelessWidget {
                 child: const CircleAvatar(
                   radius: 40,
                   backgroundColor: Colors.grey,
-                  // TODO: Ganti dengan AssetImage jika kamu punya aset avatarnya
                   child: Icon(Icons.face, size: 50, color: Colors.white),
                 ),
               ),
-              // Level Badge Kuning
               Positioned(
                 bottom: -5,
                 right: -10,
@@ -125,33 +131,29 @@ class ProfileInfoCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-
-          // Nama & Pangkat
-          const Text(
-            'SiswaCerdas1',
-            style: TextStyle(
+          Text(
+            username,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Sersan Morse',
-            style: TextStyle(fontSize: 14, color: Colors.white70),
+          Text(
+            rank,
+            style: const TextStyle(fontSize: 14, color: Colors.white70),
           ),
           const SizedBox(height: 20),
-
-          // Row Stats (Star & Coin) di dalam kartu
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildStatBadge(Icons.star, Colors.amber, '2.500'),
+              _buildStatBadge(Icons.star, Colors.amber, points.toString()),
               const SizedBox(width: 16),
               _buildStatBadge(
-                Icons.monetization_on,
-                Colors.grey.shade300,
-                '350',
+                Icons.lightbulb,
+                const Color(0xFFFFD500),
+                hints.toString(),
               ),
             ],
           ),
@@ -186,7 +188,6 @@ class ProfileInfoCard extends StatelessWidget {
   }
 }
 
-// --- 3. MENU ITEM (TOMBOL PUTIH) ---
 class ProfileMenuItem extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -243,7 +244,6 @@ class ProfileMenuItem extends StatelessWidget {
   }
 }
 
-// --- 4. TOMBOL LOGOUT ---
 class LogoutButton extends StatelessWidget {
   final VoidCallback onTap;
 
@@ -256,16 +256,13 @@ class LogoutButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFEF5350), // Merah
+          backgroundColor: const Color(0xFFEF5350),
           foregroundColor: Colors.white,
           elevation: 2,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
-            side: BorderSide(
-              color: Colors.red.shade800,
-              width: 2,
-            ), // Efek border gelap
+            side: BorderSide(color: Colors.red.shade800, width: 2),
           ),
         ),
         child: Row(

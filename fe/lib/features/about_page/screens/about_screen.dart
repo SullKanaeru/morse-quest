@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../widgets/about_widget.dart';
+import '../widgets/about_widgets.dart';
 import '../../../../shared/widgets/custom_bottom_nav.dart';
-import '../../main_page/screens/main_screen.dart';
-import '../../library_page/screens/library_screen.dart';
+import '../../../../shared/utils/navigation_helper.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({Key? key}) : super(key: key);
@@ -12,35 +11,7 @@ class AboutScreen extends StatefulWidget {
 }
 
 class _AboutScreenState extends State<AboutScreen> {
-  // Tetap index 4 karena masih bagian dari menu Profil
-  int _currentNavIndex = 4;
-
-  void _onNavbarTapped(int index) {
-    if (index == _currentNavIndex) return;
-
-    if (index == 0) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, anim1, anim2) => const MainScreen(),
-          transitionDuration: Duration.zero,
-        ),
-        (route) => false, // Membersihkan stack agar tidak menumpuk
-      );
-    } else if (index == 1) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, anim1, anim2) => const LibraryScreen(),
-          transitionDuration: Duration.zero,
-        ),
-        (route) => false,
-      );
-    } else {
-      // Jika tab Profil diklik ulang, kembali ke menu Profil utama
-      Navigator.pop(context);
-    }
-  }
+  int _currentNavIndex = 3;
 
   @override
   Widget build(BuildContext context) {
@@ -51,49 +22,48 @@ class _AboutScreenState extends State<AboutScreen> {
           children: [
             const AboutHeader(),
             Divider(color: Colors.grey.shade300, thickness: 1),
-
-            // Area yang bisa di-scroll
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: 20),
                 child: Column(
-                  children: const [
-                    SizedBox(height: 16),
-
-                    // SECTION 1: Misi Kami
-                    SectionTitle(icon: Icons.stars, title: 'Misi Kami'),
-                    SizedBox(height: 12),
-                    MissionCard(),
-                    SizedBox(height: 30),
-
-                    // SECTION 2: Kenalan dengan Developer
-                    SectionTitle(
-                      icon: Icons.video_label_outlined,
+                  children: [
+                    const SizedBox(height: 16),
+                    const SectionTitle(icon: Icons.stars, title: 'Misi Kami'),
+                    const SizedBox(height: 12),
+                    const MissionCard(),
+                    const SizedBox(height: 30),
+                    const SectionTitle(
+                      icon: Icons.people_outline,
                       title: 'Kenalan dengan Developer',
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     DeveloperCard(
-                      name: 'Alex',
+                      name: 'Muhammad Hanif Karomi',
+                      role: 'Frontend Developer',
                       description:
-                          'Alex adalah kreator MorseQuest yang sangat suka coding dan mengajar anak-anak. Melalui game ini, Alex ingin membagikan keseruan berkomunikasi dengan kode rahasia!',
+                          'Mahasiswa Informatika UBHINUS semester 6 yang sangat suka coding dan mengajar anak-anak. Sebagai Frontend Developer, Hanif bertanggung jawab atas tampilan dan pengalaman pengguna dalam game ini.',
+                      imagePath: 'assets/images/hanif.jpeg',
+                      linkedInUrl:
+                          'https://www.linkedin.com/in/hanif-karomi-7b661b32b',
+                      instagramUrl: 'https://www.instagram.com/hanif.krm',
                     ),
+                    const SizedBox(height: 8),
                     DeveloperCard(
-                      name: 'Alex', // Sesuai dengan desain (tampak duplikat)
+                      name: 'Zulhan Arif Fasya Hidayat',
+                      role: 'Backend Developer',
                       description:
-                          'Alex adalah kreator MorseQuest yang sangat suka coding dan mengajar anak-anak. Melalui game ini, Alex ingin membagikan keseruan berkomunikasi dengan kode rahasia!',
+                          'Mahasiswa Informatika UBHINUS semester 6 yang handal di balik layar MorseQuest. Sebagai Backend Developer, Zulhan memastikan semua data dan sistem berjalan dengan lancar.',
+                      imagePath: 'assets/images/zulhan.jpeg',
+                      linkedInUrl:
+                          'https://www.linkedin.com/in/zulhanariffasyahidayat',
+                      instagramUrl: 'https://www.instagram.com/zulhan.arif_',
                     ),
-                    SizedBox(height: 30),
-
-                    // SECTION 3: UBHINUS
-                    SectionTitle(icon: Icons.domain, title: 'UBHINUS'),
-                    SizedBox(height: 12),
-                    DeveloperCard(
-                      name: 'Alex',
-                      description:
-                          'Alex adalah kreator MorseQuest yang sangat suka coding dan mengajar anak-anak. Melalui game ini, Alex ingin membagikan keseruan berkomunikasi dengan kode rahasia!',
-                    ),
-
-                    SizedBox(height: 30),
+                    const SizedBox(height: 30),
+                    const SectionTitle(icon: Icons.domain, title: 'Kampus'),
+                    const SizedBox(height: 12),
+                    const UbhinusCard(),
+                    const SizedBox(height: 30),
                   ],
                 ),
               ),
@@ -101,10 +71,10 @@ class _AboutScreenState extends State<AboutScreen> {
           ],
         ),
       ),
-      // Tambahkan Navbar agar konsisten dengan desain
       bottomNavigationBar: CustomBottomNav(
         currentIndex: _currentNavIndex,
-        onTap: _onNavbarTapped,
+        onTap: (index) =>
+            NavigationHelper.onNavTapped(context, index, _currentNavIndex),
       ),
     );
   }
