@@ -28,6 +28,45 @@ class _GameScreenState extends State<GameScreen> {
   late Question _currentQuestion;
   int _combo = 0;
 
+  // ============ MORSE INPUT ============
+  void _addDot() {
+    if (_morseInput.length < 20) {
+      setState(() {
+        _morseInput += '.';
+      });
+      final soundProvider = Provider.of<SoundProvider>(context, listen: false);
+      soundProvider.playDot();
+    }
+  }
+
+  void _addDash() {
+    if (_morseInput.length < 20) {
+      setState(() {
+        _morseInput += '-';
+      });
+      final soundProvider = Provider.of<SoundProvider>(context, listen: false);
+      soundProvider.playDash();
+    }
+  }
+
+  void _addSpace() {
+    if (_morseInput.length < 20) {
+      setState(() {
+        _morseInput += ' ';
+      });
+      final soundProvider = Provider.of<SoundProvider>(context, listen: false);
+      soundProvider.playSpace();
+    }
+  }
+
+  void _removeLast() {
+    if (_morseInput.isNotEmpty) {
+      setState(() {
+        _morseInput = _morseInput.substring(0, _morseInput.length - 1);
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -70,42 +109,6 @@ class _GameScreenState extends State<GameScreen> {
 
   void _handleTimeout() {
     _submitAnswer();
-  }
-
-  void _handleMorseInput(String input) {
-    setState(() {
-      _morseInput = input;
-    });
-  }
-
-  void _addDot() {
-    if (_morseInput.length < 20) {
-      _handleMorseInput(_morseInput + '.');
-      final soundProvider = Provider.of<SoundProvider>(context, listen: false);
-      soundProvider.playDot();
-    }
-  }
-
-  void _addDash() {
-    if (_morseInput.length < 20) {
-      _handleMorseInput(_morseInput + '-');
-      final soundProvider = Provider.of<SoundProvider>(context, listen: false);
-      soundProvider.playDash();
-    }
-  }
-
-  void _addSpace() {
-    if (_morseInput.length < 20) {
-      _handleMorseInput(_morseInput + ' ');
-      final soundProvider = Provider.of<SoundProvider>(context, listen: false);
-      soundProvider.playSpace();
-    }
-  }
-
-  void _removeLast() {
-    if (_morseInput.isNotEmpty) {
-      _handleMorseInput(_morseInput.substring(0, _morseInput.length - 1));
-    }
   }
 
   void _submitAnswer() async {
@@ -216,14 +219,13 @@ class _GameScreenState extends State<GameScreen> {
               combo: _combo,
             ),
             const SizedBox(height: 16),
-            InstructionBadge(),
             const Spacer(),
             MorseKeyboard(
               onDot: _addDot,
               onDash: _addDash,
               onSpace: _addSpace,
               onBackspace: _removeLast,
-              onSubmit: _submitAnswer,
+              onTransmit: _submitAnswer,
               isSubmitting: _isSubmitting,
             ),
           ],

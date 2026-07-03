@@ -167,7 +167,7 @@ class _MainScreenState extends State<MainScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const LoginScreen(),
+                            builder: (_) => LoginScreen(),
                           ),
                         );
                       },
@@ -180,10 +180,8 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
                       child: const Text(
-                        'LOGIN SEKARANG',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                        'LOGIN',
+                        style: TextStyle(fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
