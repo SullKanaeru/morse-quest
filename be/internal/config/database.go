@@ -25,7 +25,6 @@ func ConnectDatabase() {
 
 	log.Println("Berhasil terhubung ke PostgreSQL!")
 
-	// Auto Migrate akan otomatis membuat atau memperbarui tabel User
 	err = database.AutoMigrate(&models.User{})
 	if err != nil {
 		log.Fatalf("Gagal melakukan migrasi database: %v", err)

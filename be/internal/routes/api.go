@@ -8,11 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(r *gin.Engine, authHandler *handlers.AuthHandler, wordHandler *handlers.WordHandler) {
+func SetupRoutes(r *gin.Engine, authHandler *handlers.AuthHandler, wordHandler *handlers.WordHandler, scoreHandler *handlers.ScoreHandler) {
 
 	api := r.Group("/api")
 
-	// --- ROUTES AUTENTIKASI ---
 	authGroup := api.Group("/auth")
 	{
 		authGroup.POST("/register", authHandler.Register)
@@ -20,9 +19,8 @@ func SetupRoutes(r *gin.Engine, authHandler *handlers.AuthHandler, wordHandler *
 	}
 
 	userGroup := api.Group("/user")
-	userGroup.Use(middleware.Protected()) // Pasang satpam di grup ini
+	userGroup.Use(middleware.Protected())
 	{
-		// Contoh rute untuk melihat profil
 		userGroup.GET("/profile", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"message": "Selamat! Kamu berhasil masuk ke area rahasia dengan token yang valid.",
@@ -33,7 +31,8 @@ func SetupRoutes(r *gin.Engine, authHandler *handlers.AuthHandler, wordHandler *
 	gameGroup := api.Group("/game")
 	gameGroup.Use(middleware.Protected())
 	{
-		// Akses via: GET /api/game/words?difficulty=Sedang
 		gameGroup.GET("/words", wordHandler.GetGameWords) 
+
+		gameGroup.POST("/score", scoreHandler.Submit)
 	}
 }

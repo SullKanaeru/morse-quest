@@ -19,13 +19,11 @@ func NewAuthHandler(authService services.AuthService) *AuthHandler {
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req models.AuthRequest
 
-	// Di Gin, BodyParser diganti dengan ShouldBindJSON
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
-	// c.Request.Context() digunakan untuk pass context HTTP standar ke Service
 	user, err := h.authService.Register(c.Request.Context(), req)
 	if err != nil {
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
@@ -52,7 +50,6 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// Memasukkan JWT Token ke dalam Response Header di Gin
 	c.Header("Authorization", "Bearer "+token)
 
 	c.JSON(http.StatusOK, gin.H{

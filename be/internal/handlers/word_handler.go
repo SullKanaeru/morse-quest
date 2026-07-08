@@ -16,7 +16,6 @@ func NewWordHandler(wordService services.WordService) *WordHandler {
 }
 
 func (h *WordHandler) GetGameWords(c *gin.Context) {
-	// Mengambil parameter URL (contoh: /api/game/words?difficulty=Gampang)
 	difficulty := c.Query("difficulty")
 	if difficulty == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Parameter difficulty wajib diisi"})

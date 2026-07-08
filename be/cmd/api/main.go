@@ -13,13 +13,11 @@ import (
 )
 
 func main() {
-	// 1. Inisialisasi Database
 	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost:5432/morsequest-db?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// 2. Setup Dependency Injection
 	userRepo := repositories.NewUserRepository(db)
 	authService := services.NewAuthService(userRepo)
 	authHandler := handlers.NewAuthHandler(authService)
@@ -28,12 +26,13 @@ func main() {
 	wordService := services.NewWordService(wordRepo)
 	wordHandler := handlers.NewWordHandler(wordService)
 
-	// 3. Inisialisasi Gin Engine
+	scoreRepo := repositories.NewScoreRepository(db)
+	scoreService := services.NewScoreService(scoreRepo)
+	scoreHandler := handlers.NewScoreHandler(scoreService)
+
 	r := gin.Default()
 
-	// 4. Daftarkan Routes
-	routes.SetupRoutes(r, authHandler, wordHandler)
+	routes.SetupRoutes(r, authHandler, wordHandler, scoreHandler)
 
-	// 5. Jalankan Server di port 3000
 	log.Fatal(r.Run(":3000"))
 }

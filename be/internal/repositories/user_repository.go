@@ -44,7 +44,7 @@ func (r *userRepository) GetUserByUsername(ctx context.Context, username string)
 	
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil // User tidak ditemukan
+			return nil, nil
 		}
 		return nil, err
 	}

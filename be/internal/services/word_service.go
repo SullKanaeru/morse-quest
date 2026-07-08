@@ -21,7 +21,6 @@ func NewWordService(wordRepo repositories.WordRepository) WordService {
 }
 
 func (s *wordService) GetWordsForGame(ctx context.Context, difficulty string) ([]models.Word, error) {
-	// Normalisasi input agar case-insensitive (misal: "gampang" jadi "Gampang")
 	diff := strings.Title(strings.ToLower(difficulty))
 
 	var limit int

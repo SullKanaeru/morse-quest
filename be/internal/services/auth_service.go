@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var jwtSecret = []byte("SUPER_SECRET_KEY_MORSEQUEST") // Pindahkan ke .env di production
+var jwtSecret = []byte("SUPER_SECRET_KEY_MORSEQUEST")
 
 type AuthService interface {
 	Register(ctx context.Context, req models.AuthRequest) (*models.User, error)
@@ -27,13 +27,11 @@ func NewAuthService(userRepo repositories.UserRepository) AuthService {
 }
 
 func (s *authService) Register(ctx context.Context, req models.AuthRequest) (*models.User, error) {
-	// Cek apakah username sudah ada
 	existingUser, _ := s.userRepo.GetUserByUsername(ctx, req.Username)
 	if existingUser != nil {
 		return nil, errors.New("username sudah digunakan")
 	}
 
-	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
@@ -52,22 +50,20 @@ func (s *authService) Register(ctx context.Context, req models.AuthRequest) (*mo
 }
 
 func (s *authService) Login(ctx context.Context, req models.AuthRequest) (string, *models.User, error) {
-	// Ambil user dari database
+
 	user, err := s.userRepo.GetUserByUsername(ctx, req.Username)
 	if err != nil || user == nil {
 		return "", nil, errors.New("username atau password salah")
 	}
 
-	// Bandingkan password
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password))
 	if err != nil {
 		return "", nil, errors.New("username atau password salah")
 	}
 
-	// Generate JWT Token
 	claims := jwt.MapClaims{
 		"user_id": user.ID,
-		"exp":     time.Now().Add(time.Hour * 72).Unix(), // Token berlaku 72 jam
+		"exp":     time.Now().Add(time.Hour * 72).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
