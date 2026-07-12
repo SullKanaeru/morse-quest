@@ -8,10 +8,13 @@ class UserModel {
   final Map<String, LevelProgress> levelProgress;
   final bool isSoundOn;
 
+  final String avatarUrl;
+
   UserModel({
     required this.id,
     required this.username,
     required this.email,
+    this.avatarUrl = 'assets/images/hanif.jpeg',
     this.points = 0,
     this.hints = 0,
     this.totalStars = 0,
@@ -24,7 +27,8 @@ class UserModel {
       id: json['id'] ?? '',
       username: json['username'] ?? '',
       email: json['email'] ?? '',
-      points: json['points'] ?? 0,
+      avatarUrl: json['avatar_url'] ?? 'assets/images/hanif.jpeg',
+      points: json['total_sp'] ?? json['points'] ?? 0,
       hints: json['hints'] ?? 0,
       totalStars: json['totalStars'] ?? 0,
       isSoundOn: json['isSoundOn'] ?? true,
@@ -36,6 +40,7 @@ class UserModel {
       'id': id,
       'username': username,
       'email': email,
+      'avatar_url': avatarUrl,
       'points': points,
       'hints': hints,
       'totalStars': totalStars,
@@ -47,6 +52,7 @@ class UserModel {
     String? id,
     String? username,
     String? email,
+    String? avatarUrl,
     int? points,
     int? hints,
     int? totalStars,
@@ -57,6 +63,7 @@ class UserModel {
       id: id ?? this.id,
       username: username ?? this.username,
       email: email ?? this.email,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
       points: points ?? this.points,
       hints: hints ?? this.hints,
       totalStars: totalStars ?? this.totalStars,

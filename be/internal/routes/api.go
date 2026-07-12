@@ -3,12 +3,11 @@ package routes
 import (
 	"morsequest-backend/internal/handlers"
 	"morsequest-backend/internal/middleware"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(r *gin.Engine, authHandler *handlers.AuthHandler, wordHandler *handlers.WordHandler, scoreHandler *handlers.ScoreHandler) {
+func SetupRoutes(r *gin.Engine, authHandler *handlers.AuthHandler, wordHandler *handlers.WordHandler, scoreHandler *handlers.ScoreHandler, userHandler *handlers.UserHandler) {
 
 	api := r.Group("/api")
 
@@ -21,11 +20,10 @@ func SetupRoutes(r *gin.Engine, authHandler *handlers.AuthHandler, wordHandler *
 	userGroup := api.Group("/user")
 	userGroup.Use(middleware.Protected())
 	{
-		userGroup.GET("/profile", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "Selamat! Kamu berhasil masuk ke area rahasia dengan token yang valid.",
-			})
-		})
+		userGroup.GET("/profile", userHandler.GetProfile)
+		userGroup.PUT("/profile", userHandler.UpdateProfile)
+		userGroup.POST("/avatar", userHandler.UploadAvatar)
+		userGroup.POST("/buy-hint", userHandler.BuyHint)
 	}
 
 	gameGroup := api.Group("/game")
@@ -34,5 +32,6 @@ func SetupRoutes(r *gin.Engine, authHandler *handlers.AuthHandler, wordHandler *
 		gameGroup.GET("/words", wordHandler.GetGameWords) 
 
 		gameGroup.POST("/score", scoreHandler.Submit)
+		gameGroup.POST("/use-hint", userHandler.UseHint)
 	}
 }

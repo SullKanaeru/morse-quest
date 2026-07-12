@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:morsequest/features/main_page/screens/main_screen.dart';
 import 'package:morsequest/features/library_page/screens/library_screen.dart';
 import 'package:morsequest/features/profile_page/screens/profile_screen.dart';
-import 'package:morsequest/features/shop_page/shop_screen.dart';
+import 'package:morsequest/features/shop_page/screens/shop_screen.dart';
 
 class NavigationHelper {
   static void goToMain(BuildContext context) {

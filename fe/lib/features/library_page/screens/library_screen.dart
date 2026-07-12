@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:morsequest/features/profile_page/screens/profile_screen.dart';
-import 'package:morsequest/features/shop_page/shop_screen.dart';
 import '../widgets/library_page_widgets.dart';
 import '../../main_page/widgets/main_widgets.dart';
 import '../../../../shared/widgets/custom_bottom_nav.dart';
@@ -9,7 +7,7 @@ import '../../../../shared/utils/navigation_helper.dart';
 import '../../../../shared/providers/sound_provider.dart';
 
 class LibraryScreen extends StatefulWidget {
-  const LibraryScreen({Key? key}) : super(key: key);
+  const LibraryScreen({super.key});
 
   @override
   State<LibraryScreen> createState() => _LibraryScreenState();
@@ -17,7 +15,7 @@ class LibraryScreen extends StatefulWidget {
 
 class _LibraryScreenState extends State<LibraryScreen> {
   bool _isAlphabetView = true;
-  int _currentNavIndex = 1;
+  final int _currentNavIndex = 1;
 
   @override
   void initState() {
@@ -28,11 +26,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
     });
   }
 
+  late SoundProvider _soundProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _soundProvider = Provider.of<SoundProvider>(context, listen: false);
+  }
+
   @override
   void dispose() {
-    final soundProvider = Provider.of<SoundProvider>(context, listen: false);
-    soundProvider.resumeBackgroundMusic();
-    soundProvider.stopMorse();
+    _soundProvider.resumeBackgroundMusic();
+    _soundProvider.stopMorse();
     super.dispose();
   }
 

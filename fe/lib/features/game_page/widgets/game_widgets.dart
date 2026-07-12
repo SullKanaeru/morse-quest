@@ -4,8 +4,7 @@ class GameHeader extends StatelessWidget {
   final int points;
   final int hints;
 
-  const GameHeader({Key? key, required this.points, required this.hints})
-    : super(key: key);
+  const GameHeader({super.key, required this.points, required this.hints});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +15,7 @@ class GameHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.school, color: Color(0xFF005A9C), size: 28),
+              Image.asset('assets/images/morse-quest-logo.png', width: 28, height: 28),
               const SizedBox(width: 8),
               const Text(
                 'MorseQuest',
@@ -69,7 +68,7 @@ class GameHeader extends StatelessWidget {
 class GameBackButton extends StatelessWidget {
   final VoidCallback onTap;
 
-  const GameBackButton({Key? key, required this.onTap}) : super(key: key);
+  const GameBackButton({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -122,12 +121,12 @@ class GameStatsRow extends StatelessWidget {
   final int totalQuestions;
 
   const GameStatsRow({
-    Key? key,
+    super.key,
     required this.targetWord,
     required this.time,
     required this.currentQuestion,
     required this.totalQuestions,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -161,10 +160,6 @@ class GameStatsRow extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF005A9C),
                     ),
-                  ),
-                  Text(
-                    'Soal $currentQuestion dari $totalQuestions',
-                    style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                   ),
                 ],
               ),
@@ -221,11 +216,11 @@ class PlayCard extends StatelessWidget {
   final int combo;
 
   const PlayCard({
-    Key? key,
+    super.key,
     required this.inputText,
     required this.targetWord,
     required this.combo,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -319,7 +314,7 @@ class PlayCard extends StatelessWidget {
 }
 
 class InstructionBadge extends StatelessWidget {
-  const InstructionBadge({Key? key}) : super(key: key);
+  const InstructionBadge({super.key});
 
   @override
   Widget build(BuildContext context) {

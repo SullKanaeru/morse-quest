@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:morsequest/shared/providers/user_provider.dart';
 import 'package:morsequest/shared/utils/constants.dart';
 
 class MainHeader extends StatelessWidget {
-  const MainHeader({Key? key}) : super(key: key);
+  const MainHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +15,7 @@ class MainHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.school, color: Color(0xFF005A9C), size: 28),
+              Image.asset('assets/images/morse-quest-logo.png', width: 28, height: 28),
               const SizedBox(width: 8),
               const Text(
                 'MorseQuest',
@@ -25,31 +27,39 @@ class MainHeader extends StatelessWidget {
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.star, color: Colors.amber, size: 16),
-                const SizedBox(width: 4),
-                const Text(
-                  '120',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          Consumer<UserProvider>(
+            builder: (context, userProvider, _) {
+              final user = userProvider.user;
+              final points = user?.points ?? 0;
+              final hints = user?.hints ?? 0;
+
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                const SizedBox(width: 8),
-                Container(width: 1, height: 12, color: Colors.grey.shade400),
-                const SizedBox(width: 8),
-                const Icon(Icons.monetization_on, color: Colors.grey, size: 16),
-                const SizedBox(width: 4),
-                const Text(
-                  '50',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                child: Row(
+                  children: [
+                    const Icon(Icons.monetization_on, color: Colors.amber, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$points',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(width: 1, height: 12, color: Colors.grey.shade400),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.lightbulb, color: Color(0xFFFFD500), size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$hints',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ],
       ),
@@ -58,7 +68,7 @@ class MainHeader extends StatelessWidget {
 }
 
 class MainTitle extends StatelessWidget {
-  const MainTitle({Key? key}) : super(key: key);
+  const MainTitle({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -98,13 +108,13 @@ class LevelCarousel extends StatelessWidget {
   final VoidCallback onNext;
 
   const LevelCarousel({
-    Key? key,
+    super.key,
     required this.pageController,
     required this.levels,
     required this.onPageChanged,
     required this.onPrev,
     required this.onNext,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -239,10 +249,10 @@ class PaginationDots extends StatelessWidget {
   final int activeIndex;
 
   const PaginationDots({
-    Key? key,
+    super.key,
     this.totalDots = 3,
     required this.activeIndex,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -271,7 +281,7 @@ class PaginationDots extends StatelessWidget {
 class PlayButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const PlayButton({Key? key, required this.onPressed}) : super(key: key);
+  const PlayButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

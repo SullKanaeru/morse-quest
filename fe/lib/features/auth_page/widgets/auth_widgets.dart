@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class AuthHeader extends StatelessWidget {
-  const AuthHeader({Key? key}) : super(key: key);
+  const AuthHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(Icons.school, color: Color(0xFF005A9C), size: 32),
+        Image.asset('assets/images/morse-quest-logo.png', width: 32, height: 32),
         const SizedBox(width: 8),
         const Text(
           'MorseQuest',
@@ -33,7 +33,7 @@ class AuthTextField extends StatelessWidget {
   final TextInputType? keyboardType;
 
   const AuthTextField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.label,
     required this.hint,
@@ -42,7 +42,7 @@ class AuthTextField extends StatelessWidget {
     this.suffixIcon,
     this.validator,
     this.keyboardType,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -101,11 +101,11 @@ class AuthButton extends StatelessWidget {
   final String text;
 
   const AuthButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     this.isLoading = false,
     required this.text,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutHeader extends StatelessWidget {
-  const AboutHeader({Key? key}) : super(key: key);
+  const AboutHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +44,7 @@ class SectionTitle extends StatelessWidget {
   final IconData icon;
   final String title;
 
-  const SectionTitle({Key? key, required this.icon, required this.title})
-    : super(key: key);
+  const SectionTitle({super.key, required this.icon, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +71,7 @@ class SectionTitle extends StatelessWidget {
 }
 
 class MissionCard extends StatelessWidget {
-  const MissionCard({Key? key}) : super(key: key);
+  const MissionCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -122,14 +121,14 @@ class DeveloperCard extends StatelessWidget {
   final String instagramUrl;
 
   const DeveloperCard({
-    Key? key,
+    super.key,
     required this.name,
     required this.role,
     required this.description,
     required this.imagePath,
     required this.linkedInUrl,
     required this.instagramUrl,
-  }) : super(key: key);
+  });
 
   Future<void> _launchUrl(String url) async {
     final Uri uri = Uri.parse(url);
@@ -330,7 +329,7 @@ class DeveloperCard extends StatelessWidget {
 }
 
 class UbhinusCard extends StatelessWidget {
-  const UbhinusCard({Key? key}) : super(key: key);
+  const UbhinusCard({super.key});
 
   Future<void> _launchUrl(String url) async {
     final Uri uri = Uri.parse(url);
@@ -366,11 +365,10 @@ class UbhinusCard extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF005A9C),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Center(
-                  child: Icon(Icons.school, color: Colors.white, size: 32),
+                child: Center(
+                  child: Image.asset('assets/images/ubhinus-logo.png', fit: BoxFit.contain),
                 ),
               ),
               const SizedBox(width: 16),

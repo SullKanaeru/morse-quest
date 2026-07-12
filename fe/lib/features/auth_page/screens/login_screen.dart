@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:morsequest/features/auth_page/widgets/auth_widgets.dart';
 import 'package:morsequest/features/auth_page/screens/register_screen.dart';
 import 'package:morsequest/features/auth_page/screens/forgot_password_screen.dart';
 import 'package:morsequest/features/main_page/screens/main_screen.dart';
-import 'package:morsequest/shared/providers/sound_provider.dart';
-
+import 'package:morsequest/data/network/auth_service.dart';
+import 'package:morsequest/data/storage/token_storage.dart';
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -24,14 +23,31 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      await Future.delayed(const Duration(seconds: 2));
+      final result = await AuthService.login(
+        _emailController.text,
+        _passwordController.text,
+      );
 
       setState(() => _isLoading = false);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MainScreen()),
-      );
+      if (result['success']) {
+        if (result['token'] != null) {
+          await TokenStorage.saveToken(result['token']);
+        }
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainScreen()),
+        );
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -85,6 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 32),
                 Form(
                   key: _formKey,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   child: Column(
                     children: [
                       AuthTextField(

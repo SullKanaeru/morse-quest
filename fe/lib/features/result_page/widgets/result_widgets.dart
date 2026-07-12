@@ -6,10 +6,10 @@ class ResultHeader extends StatelessWidget {
   final int maxStars;
 
   const ResultHeader({
-    Key? key,
+    super.key,
     required this.totalStars,
     required this.maxStars,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -61,12 +61,12 @@ class ResultStats extends StatelessWidget {
   final bool isPerfect;
 
   const ResultStats({
-    Key? key,
+    super.key,
     required this.totalStars,
     required this.maxStars,
     required this.pointsEarned,
     required this.isPerfect,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -146,10 +146,10 @@ class QuestionResultItem extends StatelessWidget {
   final QuestionResult result;
 
   const QuestionResultItem({
-    Key? key,
+    super.key,
     required this.questionNumber,
     required this.result,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -194,20 +194,6 @@ class QuestionResultItem extends StatelessWidget {
               ),
             ),
           ),
-          if (result.isCorrect) ...[
-            Row(
-              children: List.generate(
-                result.stars,
-                (index) =>
-                    const Icon(Icons.star, color: Color(0xFFFFD500), size: 18),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '${result.timeUsed}s',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-            ),
-          ],
         ],
       ),
     );
@@ -222,13 +208,13 @@ class ResultButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const ResultButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.icon,
     required this.backgroundColor,
     required this.textColor,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

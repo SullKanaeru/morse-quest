@@ -13,17 +13,17 @@ class ResultScreen extends StatelessWidget {
   final int pointsEarned;
 
   const ResultScreen({
-    Key? key,
+    super.key,
     required this.levelId,
     required this.results,
     required this.totalStars,
     required this.pointsEarned,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final soundProvider = Provider.of<SoundProvider>(context);
-    final bool isPerfect = results.every((r) => r.stars == 3);
+    final bool isPerfect = totalStars == 3;
     final bool gotHint = ScoringSystem.shouldGetHint(totalStars);
 
     return Scaffold(
@@ -31,7 +31,7 @@ class ResultScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            ResultHeader(totalStars: totalStars, maxStars: results.length * 3),
+            ResultHeader(totalStars: totalStars, maxStars: 3),
             const SizedBox(height: 24),
             Expanded(
               child: SingleChildScrollView(
@@ -41,7 +41,7 @@ class ResultScreen extends StatelessWidget {
                   children: [
                     ResultStats(
                       totalStars: totalStars,
-                      maxStars: results.length * 3,
+                      maxStars: 3,
                       pointsEarned: pointsEarned,
                       isPerfect: isPerfect,
                     ),

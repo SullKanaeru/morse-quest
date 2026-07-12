@@ -14,7 +14,7 @@ import (
 var jwtSecret = []byte("SUPER_SECRET_KEY_MORSEQUEST")
 
 type AuthService interface {
-	Register(ctx context.Context, req models.AuthRequest) (*models.User, error)
+	Register(ctx context.Context, req models.RegisterRequest) (*models.User, error)
 	Login(ctx context.Context, req models.AuthRequest) (string, *models.User, error)
 }
 
@@ -26,10 +26,15 @@ func NewAuthService(userRepo repositories.UserRepository) AuthService {
 	return &authService{userRepo: userRepo}
 }
 
-func (s *authService) Register(ctx context.Context, req models.AuthRequest) (*models.User, error) {
+func (s *authService) Register(ctx context.Context, req models.RegisterRequest) (*models.User, error) {
 	existingUser, _ := s.userRepo.GetUserByUsername(ctx, req.Username)
 	if existingUser != nil {
 		return nil, errors.New("username sudah digunakan")
+	}
+
+	existingEmail, _ := s.userRepo.GetUserByEmail(ctx, req.Email)
+	if existingEmail != nil {
+		return nil, errors.New("email sudah digunakan")
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -38,6 +43,7 @@ func (s *authService) Register(ctx context.Context, req models.AuthRequest) (*mo
 	}
 
 	user := &models.User{
+		Email:        req.Email,
 		Username:     req.Username,
 		PasswordHash: string(hashedPassword),
 	}
@@ -51,14 +57,14 @@ func (s *authService) Register(ctx context.Context, req models.AuthRequest) (*mo
 
 func (s *authService) Login(ctx context.Context, req models.AuthRequest) (string, *models.User, error) {
 
-	user, err := s.userRepo.GetUserByUsername(ctx, req.Username)
+	user, err := s.userRepo.GetUserByEmail(ctx, req.Email)
 	if err != nil || user == nil {
-		return "", nil, errors.New("username atau password salah")
+		return "", nil, errors.New("email atau password salah")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password))
 	if err != nil {
-		return "", nil, errors.New("username atau password salah")
+		return "", nil, errors.New("email atau password salah")
 	}
 
 	claims := jwt.MapClaims{

@@ -8,12 +8,12 @@ class ResultDialog extends StatelessWidget {
   final int totalQuestions;
 
   const ResultDialog({
-    Key? key,
+    super.key,
     required this.result,
     required this.onNext,
     required this.currentQuestion,
     required this.totalQuestions,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -4,14 +4,14 @@ import '../../../../shared/widgets/custom_bottom_nav.dart';
 import '../../../../shared/utils/navigation_helper.dart';
 
 class AboutScreen extends StatefulWidget {
-  const AboutScreen({Key? key}) : super(key: key);
+  const AboutScreen({super.key});
 
   @override
   State<AboutScreen> createState() => _AboutScreenState();
 }
 
 class _AboutScreenState extends State<AboutScreen> {
-  int _currentNavIndex = 3;
+  final int _currentNavIndex = 3;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       name: 'Zulhan Arif Fasya Hidayat',
                       role: 'Backend Developer',
                       description:
-                          'Mahasiswa Informatika UBHINUS semester 6 yang handal di balik layar MorseQuest. Sebagai Backend Developer, Zulhan memastikan semua data dan sistem berjalan dengan lancar.',
+                          'Tidak seperti programmer kebanyakan, saya suka naik gunung, gym, bermain musik, dan yang pasti soal backend saya jago banget. Infokan loker :)',
                       imagePath: 'assets/images/zulhan.jpeg',
                       linkedInUrl:
                           'https://www.linkedin.com/in/zulhanariffasyahidayat',

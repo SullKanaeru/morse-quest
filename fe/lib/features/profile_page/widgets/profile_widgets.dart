@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:morsequest/shared/providers/user_provider.dart';
 
 class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({Key? key}) : super(key: key);
+  const ProfileHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +14,7 @@ class ProfileHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.school, color: Color(0xFF005A9C), size: 28),
+              Image.asset('assets/images/morse-quest-logo.png', width: 28, height: 28),
               const SizedBox(width: 8),
               const Text(
                 'MorseQuest',
@@ -24,31 +26,60 @@ class ProfileHeader extends StatelessWidget {
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.star, color: Colors.amber, size: 16),
-                const SizedBox(width: 4),
-                const Text(
-                  '15',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          Consumer<UserProvider>(
+            builder: (context, userProvider, _) {
+              final user = userProvider.user;
+              final points = user?.points ?? 0;
+              final hints = user?.hints ?? 0;
+
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
                 ),
-                const SizedBox(width: 8),
-                Container(width: 1, height: 12, color: Colors.grey.shade400),
-                const SizedBox(width: 8),
-                const Icon(Icons.monetization_on, color: Colors.grey, size: 16),
-                const SizedBox(width: 4),
-                const Text(
-                  '2500',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(20),
                 ),
-              ],
-            ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.monetization_on,
+                      color: Colors.amber,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$points',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 1,
+                      height: 12,
+                      color: Colors.grey.shade400,
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.lightbulb,
+                      color: Color(0xFFFFD500),
+                      size: 16,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$hints',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -61,14 +92,27 @@ class ProfileInfoCard extends StatelessWidget {
   final String rank;
   final int points;
   final int hints;
+  final String avatarUrl;
+  final VoidCallback? onEditUsername;
+  final VoidCallback? onEditAvatar;
 
   const ProfileInfoCard({
-    Key? key,
+    super.key,
     required this.username,
     required this.rank,
     required this.points,
     required this.hints,
-  }) : super(key: key);
+    required this.avatarUrl,
+    this.onEditUsername,
+    this.onEditAvatar,
+  });
+
+  ImageProvider _getAvatarProvider() {
+    if (avatarUrl.startsWith('http')) {
+      return NetworkImage(avatarUrl);
+    }
+    return AssetImage(avatarUrl);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,50 +138,94 @@ class ProfileInfoCard extends StatelessWidget {
             clipBehavior: Clip.none,
             alignment: Alignment.bottomRight,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 4),
-                ),
-                child: const CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.grey,
-                  child: Icon(Icons.face, size: 50, color: Colors.white),
+              GestureDetector(
+                onTap: onEditAvatar,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 4),
+                  ),
+                  child: CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.grey.shade300,
+                    backgroundImage: _getAvatarProvider(),
+                  ),
                 ),
               ),
-              Positioned(
-                bottom: -5,
-                right: -10,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFD500),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                  child: const Text(
-                    'LV. 5',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+              if (onEditAvatar != null)
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: onEditAvatar,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color(0xFF0277BD),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        size: 16,
+                        color: Color(0xFF0277BD),
+                      ),
                     ),
                   ),
                 ),
-              ),
+              // Positioned(
+              //   bottom: -5,
+              //   left:
+              //       -10, // move rank badge to the left so it doesn't overlap with camera
+              //   child: Container(
+              //     padding: const EdgeInsets.symmetric(
+              //       horizontal: 10,
+              //       vertical: 4,
+              //     ),
+              //     decoration: BoxDecoration(
+              //       color: const Color(0xFFFFD500),
+              //       borderRadius: BorderRadius.circular(12),
+              //       border: Border.all(color: Colors.white, width: 2),
+              //     ),
+              // child: const Text(
+              //   'LV. 5',
+              //   style: TextStyle(
+              //     fontSize: 10,
+              //     fontWeight: FontWeight.bold,
+              //     color: Colors.black87,
+              //   ),
+              // ),
+              //   ),
+              // ),
             ],
           ),
           const SizedBox(height: 16),
-          Text(
-            username,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                username,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              if (onEditUsername != null) ...[
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: onEditUsername,
+                  child: const Icon(
+                    Icons.edit,
+                    color: Colors.white70,
+                    size: 20,
+                  ),
+                ),
+              ],
+            ],
           ),
           const SizedBox(height: 4),
           Text(
@@ -195,12 +283,12 @@ class ProfileMenuItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   const ProfileMenuItem({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.trailing,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -247,7 +335,7 @@ class ProfileMenuItem extends StatelessWidget {
 class LogoutButton extends StatelessWidget {
   final VoidCallback onTap;
 
-  const LogoutButton({Key? key, required this.onTap}) : super(key: key);
+  const LogoutButton({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

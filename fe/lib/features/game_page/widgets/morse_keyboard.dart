@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MorseKeyboard extends StatefulWidget {
   final VoidCallback onDot;
@@ -8,26 +9,60 @@ class MorseKeyboard extends StatefulWidget {
   final VoidCallback onBackspace;
   final VoidCallback onTransmit;
   final bool isSubmitting;
+  final bool isGlowing;
 
   const MorseKeyboard({
-    Key? key,
+    super.key,
     required this.onDot,
     required this.onDash,
     required this.onSpace,
     required this.onBackspace,
     required this.onTransmit,
     this.isSubmitting = false,
-  }) : super(key: key);
+    this.isGlowing = false,
+  });
 
   @override
   State<MorseKeyboard> createState() => _MorseKeyboardState();
 }
 
-class _MorseKeyboardState extends State<MorseKeyboard> {
+class _MorseKeyboardState extends State<MorseKeyboard>
+    with SingleTickerProviderStateMixin {
   Timer? _timer;
   bool _isHolding = false;
   int _holdDuration = 0;
   static const int _dashThreshold = 300; // 300ms untuk jadi dash
+  static const int _maxHoldDuration = 1000; // 1 detik auto-release
+
+  // Glow/pulse animation
+  late AnimationController _glowController;
+  late Animation<double> _glowAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _glowController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+    _glowAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
+    if (widget.isGlowing) {
+      _glowController.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant MorseKeyboard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isGlowing && !_glowController.isAnimating) {
+      _glowController.repeat(reverse: true);
+    } else if (!widget.isGlowing && _glowController.isAnimating) {
+      _glowController.stop();
+      _glowController.reset();
+    }
+  }
 
   void _startHold() {
     setState(() {
@@ -35,12 +70,36 @@ class _MorseKeyboardState extends State<MorseKeyboard> {
       _holdDuration = 0;
     });
 
-    // Timer untuk menghitung durasi hold
     _timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       setState(() {
         _holdDuration += 50;
       });
+
+      // Auto-release jika melebihi batas waktu
+      if (_holdDuration >= _maxHoldDuration) {
+        _autoRelease();
+      }
     });
+  }
+
+  void _autoRelease() {
+    _timer?.cancel();
+    _timer = null;
+
+    if (_isHolding) {
+      setState(() {
+        _isHolding = false;
+        _holdDuration = 0;
+      });
+
+      // Auto-release selalu mengirim DASH + haptic feedback
+      HapticFeedback.heavyImpact();
+      widget.onDash();
+    }
   }
 
   void _endHold() {
@@ -48,16 +107,17 @@ class _MorseKeyboardState extends State<MorseKeyboard> {
     _timer = null;
 
     if (_isHolding) {
+      final duration = _holdDuration;
       setState(() {
         _isHolding = false;
+        _holdDuration = 0;
       });
 
-      // Decision: dot atau dash?
-      if (_holdDuration < _dashThreshold) {
-        // Dot (tekan singkat)
+      if (duration < _dashThreshold) {
+        HapticFeedback.lightImpact();
         widget.onDot();
       } else {
-        // Dash (tekan panjang)
+        HapticFeedback.mediumImpact();
         widget.onDash();
       }
     }
@@ -66,6 +126,7 @@ class _MorseKeyboardState extends State<MorseKeyboard> {
   @override
   void dispose() {
     _timer?.cancel();
+    _glowController.dispose();
     super.dispose();
   }
 
@@ -103,9 +164,9 @@ class _MorseKeyboardState extends State<MorseKeyboard> {
 
           const SizedBox(height: 16),
 
-          // ============ ROW: SPACE + BACKSPACE + TRANSMIT ============
+          // ============ ROW: BACKSPACE + SPACE + TRANSMIT ============
           Row(
-            children: [              
+            children: [
               _buildActionButton(
                 label: '',
                 icon: Icons.backspace,
@@ -135,40 +196,6 @@ class _MorseKeyboardState extends State<MorseKeyboard> {
               ),
             ],
           ),
-
-          const SizedBox(height: 8),
-
-          // ============ INSTRUCTION ============
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade200),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFFFD500),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Tap = • (titik)  |  Hold = — (garis)',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -176,20 +203,104 @@ class _MorseKeyboardState extends State<MorseKeyboard> {
 
   // ============ MORSE BUTTON (UTAMA) ============
   Widget _buildMorseButton() {
+    // Hitung progress dari 0.0 ke 1.0 berdasarkan maxHoldDuration
+    final double progress = _isHolding
+        ? (_holdDuration / _maxHoldDuration).clamp(0.0, 1.0)
+        : 0.0;
+    final bool isDashZone = _holdDuration >= _dashThreshold;
+
+    // Jika mode glow (waiting state), gunakan AnimatedBuilder untuk pulse effect
+    if (widget.isGlowing) {
+      return AnimatedBuilder(
+        animation: _glowAnimation,
+        builder: (context, child) {
+          final glowVal = _glowAnimation.value;
+          return GestureDetector(
+            onTapDown: (_) => _startHold(),
+            onTapUp: (_) => _endHold(),
+            onTapCancel: _endHold,
+            child: Container(
+              width: double.infinity,
+              height: 90,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFFFFD500).withOpacity(0.2 + glowVal * 0.3),
+                    const Color(0xFFFFD500).withOpacity(0.3 + glowVal * 0.4),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: const Color(
+                    0xFFFFD500,
+                  ).withOpacity(0.5 + glowVal * 0.5),
+                  width: 2 + glowVal,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFFFD500).withOpacity(glowVal * 0.5),
+                    blurRadius: 20 + glowVal * 15,
+                    spreadRadius: glowVal * 8,
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.touch_app,
+                      color: Color.lerp(
+                        const Color(0xFFFFD500).withOpacity(0.6),
+                        const Color(0xFFFFD500),
+                        glowVal,
+                      ),
+                      size: 36,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'TAP HERE!',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color.lerp(
+                          const Color(0xFFFFD500).withOpacity(0.6),
+                          const Color(0xFFFFD500),
+                          glowVal,
+                        ),
+                        letterSpacing: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return GestureDetector(
       onTapDown: (_) => _startHold(),
       onTapUp: (_) => _endHold(),
       onTapCancel: _endHold,
       child: Container(
         width: double.infinity,
-        height: 80,
+        height: 90,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: _isHolding
-                ? [
-                    const Color(0xFF005A9C).withOpacity(0.3),
-                    const Color(0xFF005A9C).withOpacity(0.5),
-                  ]
+                ? (isDashZone
+                      ? [
+                          const Color(0xFF005A9C).withOpacity(0.3),
+                          const Color(0xFF005A9C).withOpacity(0.5),
+                        ]
+                      : [
+                          const Color(0xFFFFD500).withOpacity(0.2),
+                          const Color(0xFFFFD500).withOpacity(0.4),
+                        ])
                 : [
                     const Color(0xFF005A9C).withOpacity(0.1),
                     const Color(0xFF005A9C).withOpacity(0.2),
@@ -200,14 +311,20 @@ class _MorseKeyboardState extends State<MorseKeyboard> {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: _isHolding
-                ? const Color(0xFF005A9C)
+                ? (isDashZone
+                      ? const Color(0xFF005A9C)
+                      : const Color(0xFFFFD500))
                 : const Color(0xFF005A9C).withOpacity(0.3),
             width: _isHolding ? 3 : 1.5,
           ),
           boxShadow: _isHolding
               ? [
                   BoxShadow(
-                    color: const Color(0xFF005A9C).withOpacity(0.3),
+                    color:
+                        (isDashZone
+                                ? const Color(0xFF005A9C)
+                                : const Color(0xFFFFD500))
+                            .withOpacity(0.3),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -220,56 +337,86 @@ class _MorseKeyboardState extends State<MorseKeyboard> {
                   ),
                 ],
         ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                _isHolding ? Icons.touch_app : Icons.tap_and_play,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              _isHolding ? Icons.touch_app : Icons.tap_and_play,
+              color: _isHolding
+                  ? (isDashZone
+                        ? const Color(0xFF005A9C)
+                        : const Color(0xFFFFD500))
+                  : Colors.grey.shade600,
+              size: 32,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _isHolding ? (isDashZone ? '— DASH' : '• DOT') : 'TAP or HOLD',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
                 color: _isHolding
-                    ? const Color(0xFF005A9C)
-                    : Colors.grey.shade600,
-                size: 32,
+                    ? (isDashZone
+                          ? const Color(0xFF005A9C)
+                          : const Color(0xFFFFD500))
+                    : Colors.grey.shade500,
               ),
-              const SizedBox(height: 4),
+            ),
+            if (_isHolding) ...[
+              const SizedBox(height: 6),
+              // Progress bar dengan zona dot dan dash
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Stack(
+                  children: [
+                    // Background
+                    Container(
+                      width: double.infinity,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                    // Progress fill
+                    FractionallySizedBox(
+                      widthFactor: progress,
+                      child: Container(
+                        height: 6,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFFFFD500),
+                              isDashZone
+                                  ? const Color(0xFF005A9C)
+                                  : const Color(0xFFFFD500),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ),
+                    ),
+                    // Dash threshold marker
+                    Positioned(
+                      left:
+                          (_dashThreshold / _maxHoldDuration) *
+                          (MediaQuery.of(context).size.width - 80 - 48),
+                      child: Container(
+                        width: 2,
+                        height: 6,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 2),
               Text(
-                _isHolding
-                    ? '${(_holdDuration / 1000).toStringAsFixed(1)}s'
-                    : 'TAP or HOLD',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: _isHolding
-                      ? const Color(0xFF005A9C)
-                      : Colors.grey.shade500,
-                ),
+                '${(_holdDuration / 1000).toStringAsFixed(1)}s / ${(_maxHoldDuration / 1000).toStringAsFixed(1)}s',
+                style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
               ),
-              if (_isHolding) ...[
-                const SizedBox(height: 2),
-                Container(
-                  width: 100,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: _holdDuration >= _dashThreshold
-                        ? Colors.red
-                        : const Color(0xFFFFD500),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  _holdDuration >= _dashThreshold ? '— DASH' : '• DOT',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: _holdDuration >= _dashThreshold
-                        ? Colors.red
-                        : const Color(0xFFFFD500),
-                  ),
-                ),
-              ],
             ],
-          ),
+          ],
         ),
       ),
     );

@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: morsequest-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password_for_vps # Ganti dengan password yang lebih aman
+      POSTGRES_DB: morsequest-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    container_name: morsequest-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      # Pastikan host = db karena kita menggunakan nama service db di Docker Compose
+      - DB_URL=host=db user=postgres password=postgres_password_for_vps dbname=morsequest-db port=5432 sslmode=disable
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

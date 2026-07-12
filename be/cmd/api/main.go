@@ -30,9 +30,14 @@ func main() {
 	scoreService := services.NewScoreService(scoreRepo)
 	scoreHandler := handlers.NewScoreHandler(scoreService)
 
+	userService := services.NewUserService(userRepo)
+	userHandler := handlers.NewUserHandler(userService)
+
 	r := gin.Default()
 
-	routes.SetupRoutes(r, authHandler, wordHandler, scoreHandler)
+	r.Static("/uploads", "./uploads")
+
+	routes.SetupRoutes(r, authHandler, wordHandler, scoreHandler, userHandler)
 
 	log.Fatal(r.Run(":3000"))
 }

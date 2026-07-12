@@ -24,7 +24,12 @@ func (h *ScoreHandler) Submit(c *gin.Context) {
 		return
 	}
 
-	userID := 1 
+	userIDAny, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userID := userIDAny.(int)
 
 	err := h.scoreService.SubmitScore(c.Request.Context(), userID, req)
 	if err != nil {

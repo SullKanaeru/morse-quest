@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:morsequest/features/game_page/screens/game_screen.dart';
-import 'package:morsequest/features/library_page/screens/library_screen.dart';
-import 'package:morsequest/features/profile_page/screens/profile_screen.dart';
-import 'package:morsequest/features/shop_page/shop_screen.dart';
 import 'package:morsequest/features/auth_page/screens/login_screen.dart';
 import '../widgets/main_widgets.dart';
 import '../../../../shared/widgets/custom_bottom_nav.dart';
 import '../../../../shared/utils/constants.dart';
 import '../../../../shared/utils/navigation_helper.dart';
 import '../../../../shared/providers/sound_provider.dart';
+import '../../../../shared/providers/user_provider.dart';
+import 'package:morsequest/data/storage/token_storage.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  const MainScreen({super.key});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentNavIndex = 0;
+  final int _currentNavIndex = 0;
   int _currentLevelIndex = 0;
   late PageController _pageController;
 
@@ -29,11 +28,24 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: 0);
+    _checkLoginStatus();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final soundProvider = Provider.of<SoundProvider>(context, listen: false);
       soundProvider.playBackgroundMusic();
     });
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final token = await TokenStorage.getToken();
+    if (mounted) {
+      setState(() {
+        _isLoggedIn = token != null;
+      });
+      if (_isLoggedIn) {
+        Provider.of<UserProvider>(context, listen: false).fetchProfile();
+      }
+    }
   }
 
   @override
@@ -84,7 +96,7 @@ class _MainScreenState extends State<MainScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFFD500).withOpacity(0.15),
+                  color: const Color.fromARGB(255, 255, 255, 255),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -104,39 +116,13 @@ class _MainScreenState extends State<MainScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Petualangan Morse menantimu!\nLogin sekarang untuk mulai bermain,\nsimpan progress, dan kumpulkan bintang!',
+                'Login sekarang untuk mulai bermain!',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey, height: 1.5),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildStatItem(
-                      icon: Icons.star,
-                      label: 'Bintang',
-                      color: const Color(0xFFFFD500),
-                    ),
-                    _buildStatItem(
-                      icon: Icons.lightbulb,
-                      label: 'Hint',
-                      color: const Color(0xFFFFD500),
-                    ),
-                    _buildStatItem(
-                      icon: Icons.emoji_events,
-                      label: 'Peringkat',
-                      color: const Color(0xFFFFD500),
-                    ),
-                  ],
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey,
+                  height: 1.5,
                 ),
               ),
               const SizedBox(height: 24),
@@ -166,9 +152,7 @@ class _MainScreenState extends State<MainScreen> {
                         Navigator.pop(context);
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => LoginScreen(),
-                          ),
+                          MaterialPageRoute(builder: (_) => LoginScreen()),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -181,8 +165,7 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                       child: const Text(
                         'LOGIN',
-                        style: TextStyle(fontWeight: FontWeight.w600,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),

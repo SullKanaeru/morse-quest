@@ -19,7 +19,7 @@ func NewWordRepository(db *sql.DB) WordRepository {
 }
 
 func (r *wordRepository) GetRandomWords(ctx context.Context, difficulty string, limit int) ([]models.Word, error) {
-	query := `SELECT id, word, difficulty FROM words_dictionary WHERE difficulty = $1 ORDER BY RANDOM() LIMIT $2`
+	query := `SELECT id, word, morse_code, difficulty FROM words_dictionary WHERE difficulty = $1 ORDER BY RANDOM() LIMIT $2`
 	
 	rows, err := r.db.QueryContext(ctx, query, difficulty, limit)
 	if err != nil {
@@ -30,7 +30,7 @@ func (r *wordRepository) GetRandomWords(ctx context.Context, difficulty string, 
 	var words []models.Word
 	for rows.Next() {
 		var w models.Word
-		if err := rows.Scan(&w.ID, &w.Word, &w.Difficulty); err != nil {
+		if err := rows.Scan(&w.ID, &w.Word, &w.MorseCode, &w.Difficulty); err != nil {
 			return nil, err
 		}
 		words = append(words, w)

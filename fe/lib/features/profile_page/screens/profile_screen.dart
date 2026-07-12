@@ -1,34 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:morsequest/features/about_page/screens/about_screen.dart';
-import 'package:morsequest/features/library_page/screens/library_screen.dart';
-import 'package:morsequest/features/shop_page/shop_screen.dart';
 import 'package:morsequest/features/auth_page/screens/login_screen.dart';
 import '../widgets/profile_widgets.dart';
-import '../../main_page/screens/main_screen.dart';
 import '../../../../shared/widgets/custom_bottom_nav.dart';
 import '../../../../shared/utils/navigation_helper.dart';
 import '../../../../shared/providers/sound_provider.dart';
+import '../../../../shared/providers/user_provider.dart';
+import 'package:morsequest/data/storage/token_storage.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  int _currentNavIndex = 3;
+  final int _currentNavIndex = 3;
 
   bool _isLoggedIn = false;
 
   @override
   void initState() {
     super.initState();
+    _checkLoginStatus();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final soundProvider = Provider.of<SoundProvider>(context, listen: false);
       soundProvider.resumeBackgroundMusic();
     });
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final token = await TokenStorage.getToken();
+    if (mounted) {
+      setState(() {
+        _isLoggedIn = token != null;
+      });
+    }
   }
 
   @override
@@ -131,19 +141,112 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildProfileCard() {
-    final Map<String, dynamic> user = {
-      'username': 'SiswaCerdas1',
-      'rank': 'Sersan Morse',
-      'points': 2500,
-      'hints': 3,
-      'totalStars': 15,
-    };
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, _) {
+        final user = userProvider.user;
+        if (user == null) return const SizedBox.shrink();
 
-    return ProfileInfoCard(
-      username: user['username'] as String,
-      rank: user['rank'] as String,
-      points: user['points'] as int,
-      hints: user['hints'] as int,
+        return ProfileInfoCard(
+          username: user.username,
+          rank: 'Pemula', // Rank logic can be added later based on points
+          points: user.points,
+          hints: user.hints,
+          avatarUrl: user.avatarUrl,
+          onEditUsername: () => _showEditUsernameDialog(context, userProvider),
+          onEditAvatar: () => _pickAndUploadAvatar(context, userProvider),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickAndUploadAvatar(BuildContext context, UserProvider userProvider) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mengunggah avatar...')),
+      );
+
+      final success = await userProvider.uploadAvatar(pickedFile.path);
+
+      if (!mounted) return;
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Avatar berhasil diperbarui')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal memperbarui avatar')),
+        );
+      }
+    }
+  }
+
+  void _showEditUsernameDialog(BuildContext context, UserProvider userProvider) {
+    final user = userProvider.user;
+    if (user == null) return;
+
+    final TextEditingController usernameController =
+        TextEditingController(text: user.username);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: const Text('Edit Username'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: usernameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Username',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Batal'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (usernameController.text.trim().isEmpty) return;
+                    final success = await userProvider.updateProfile(
+                      usernameController.text.trim(),
+                      user.avatarUrl, // Keep existing avatar
+                    );
+                    if (mounted) {
+                      Navigator.pop(context);
+                      if (success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Username berhasil diperbarui')),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Gagal memperbarui username')),
+                        );
+                      }
+                    }
+                  },
+                  child: userProvider.isLoading 
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Text('Simpan'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -175,7 +278,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           title: 'Pengaturan Suara',
           trailing: Switch(
             value: soundProvider.isSoundOn,
-            activeColor: Colors.white,
+            activeThumbColor: Colors.white,
             activeTrackColor: const Color(0xFF007BFF),
             inactiveThumbColor: Colors.white,
             inactiveTrackColor: Colors.grey.shade300,
@@ -224,17 +327,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: const Text('Batal'),
               ),
               TextButton(
-                onPressed: () {
-                  setState(() {
-                    _isLoggedIn = false;
-                  });
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Berhasil logout!'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
+                onPressed: () async {
+                  await TokenStorage.removeToken();
+                  if (mounted) {
+                    Provider.of<UserProvider>(context, listen: false).logout();
+                    setState(() {
+                      _isLoggedIn = false;
+                    });
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Berhasil logout!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
                 },
                 child: const Text(
                   'Logout',

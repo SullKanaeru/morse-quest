@@ -29,11 +29,18 @@ func Protected() gin.HandlerFunc {
 
 		tokenString := parts[1]
 
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return jwtSecret, nil
 		})
 
-		if err != nil || !token.Valid {
+		if token != nil && token.Valid {
+			if claims, ok := token.Claims.(jwt.MapClaims); ok {
+				// Extract user_id as float64 (standard for JSON numbers) and convert to int
+				if userID, ok := claims["user_id"].(float64); ok {
+					c.Set("user_id", int(userID))
+				}
+			}
+		} else {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token tidak valid atau sudah kedaluwarsa"})
 			c.Abort()
 			return

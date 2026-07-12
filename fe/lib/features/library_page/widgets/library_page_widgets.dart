@@ -50,7 +50,7 @@ final List<MorseData> numberMorse = [
 ];
 
 class LibraryTitle extends StatelessWidget {
-  const LibraryTitle({Key? key}) : super(key: key);
+  const LibraryTitle({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -86,10 +86,10 @@ class CustomToggle extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   const CustomToggle({
-    Key? key,
+    super.key,
     required this.isAlphabet,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -176,8 +176,7 @@ class MorseCard extends StatelessWidget {
   final MorseData data;
   final VoidCallback onTap;
 
-  const MorseCard({Key? key, required this.data, required this.onTap})
-    : super(key: key);
+  const MorseCard({super.key, required this.data, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

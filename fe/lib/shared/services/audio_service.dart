@@ -48,16 +48,24 @@ class AudioService {
     _effectPlayer.setVolume(_volume);
   }
 
+  bool _isInitializingBg = false;
+
   Future<void> playBackgroundMusic() async {
-    if (!_isSoundOn) return;
+    if (!_isSoundOn || _isInitializingBg) return;
+    if (_bgPlayer.state == PlayerState.playing) return;
+
+    _isInitializingBg = true;
     try {
       _isBgPlaying = true;
+      await _bgPlayer.stop();
       await _bgPlayer.setReleaseMode(ReleaseMode.loop);
       await _bgPlayer.play(AssetSource('sounds/background/bg_music.mp3'));
       await _bgPlayer.setVolume(_volume);
     } catch (e) {
       _isBgPlaying = false;
       debugPrint('Error playing background music: $e');
+    } finally {
+      _isInitializingBg = false;
     }
   }
 
@@ -82,10 +90,8 @@ class AudioService {
     if (!_isSoundOn) return;
     try {
       await _effectPlayer.stop();
-      final player = AudioPlayer();
-      await player.play(AssetSource('sounds/morse/dot.mp3'));
+      await _effectPlayer.play(AssetSource('sounds/morse/dot.mp3'));
       await Future.delayed(const Duration(milliseconds: 200));
-      await player.dispose();
     } catch (e) {
       debugPrint('Error playing dot: $e');
     }
@@ -95,10 +101,8 @@ class AudioService {
     if (!_isSoundOn) return;
     try {
       await _effectPlayer.stop();
-      final player = AudioPlayer();
-      await player.play(AssetSource('sounds/morse/dash.mp3'));
+      await _effectPlayer.play(AssetSource('sounds/morse/dash.mp3'));
       await Future.delayed(const Duration(milliseconds: 400));
-      await player.dispose();
     } catch (e) {
       debugPrint('Error playing dash: $e');
     }
