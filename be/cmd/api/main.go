@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
+	"os"
 	"morsequest-backend/internal/handlers"
 	"morsequest-backend/internal/repositories"
 	"morsequest-backend/internal/routes"
@@ -13,7 +14,12 @@ import (
 )
 
 func main() {
-	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost:5432/morsequest-db?sslmode=disable")
+	dbUrl := os.Getenv("DB_URL")
+	if dbUrl == "" {
+		// Fallback for local development if .env is missing
+		dbUrl = "postgres://postgres:postgres@localhost:5432/morsequest-db?sslmode=disable"
+	}
+	db, err := sql.Open("postgres", dbUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
