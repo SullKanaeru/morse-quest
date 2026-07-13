@@ -45,5 +45,9 @@ func main() {
 
 	routes.SetupRoutes(r, authHandler, wordHandler, scoreHandler, userHandler)
 
-	log.Fatal(r.Run(":3000"))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Fatal(r.Run(":" + port))
 }
