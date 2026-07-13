@@ -138,7 +138,13 @@ func (h *UserHandler) UploadAvatar(c *gin.Context) {
 		return
 	}
 
-	avatarUrl := "http://10.0.2.2:3000/uploads/" + filename
+	// Dapatkan protokol dari header X-Forwarded-Proto jika ada (karena di balik Nginx proxy)
+	scheme := c.GetHeader("X-Forwarded-Proto")
+	if scheme == "" {
+		scheme = "http"
+	}
+	
+	avatarUrl := scheme + "://" + c.Request.Host + "/uploads/" + filename
 
 	// Update user db avatarUrl
 	err = h.userService.UpdateProfile(c.Request.Context(), userID, models.UpdateProfileRequest{
