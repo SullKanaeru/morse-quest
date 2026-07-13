@@ -110,6 +110,29 @@ class UserProvider extends ChangeNotifier {
     return false;
   }
 
+  Future<bool> deleteAvatar() async {
+    final token = await TokenStorage.getToken();
+    if (token == null) return false;
+
+    try {
+      final response = await http.delete(
+        Uri.parse(ApiConfig.uploadAvatar), // Menggunakan URL yang sama dengan upload, namun HTTP DELETE
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        await fetchProfile();
+        return true;
+      }
+    } catch (e) {
+      debugPrint("deleteAvatar error: $e");
+    }
+    return false;
+  }
+
   Future<bool> updateProfile(String username, String avatarUrl) async {
     final token = await TokenStorage.getToken();
     if (token == null) return false;

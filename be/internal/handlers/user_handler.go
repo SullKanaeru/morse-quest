@@ -161,3 +161,33 @@ func (h *UserHandler) UploadAvatar(c *gin.Context) {
 	})
 }
 
+func (h *UserHandler) DeleteAvatar(c *gin.Context) {
+	userIDAny, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userID := userIDAny.(int)
+
+	// Dapatkan username saat ini agar tidak terhapus
+	user, err := h.userService.GetProfile(c.Request.Context(), userID)
+	if err != nil || user == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengambil data user"})
+		return
+	}
+
+	// Hapus avatar dengan menset empty string
+	err = h.userService.UpdateProfile(c.Request.Context(), userID, models.UpdateProfileRequest{
+		Username:  user.Username,
+		AvatarUrl: "",
+	})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal menghapus avatar: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Berhasil menghapus avatar",
+	})
+}
+

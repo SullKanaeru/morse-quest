@@ -23,6 +23,7 @@ func SetupRoutes(r *gin.Engine, authHandler *handlers.AuthHandler, wordHandler *
 		userGroup.GET("/profile", userHandler.GetProfile)
 		userGroup.PUT("/profile", userHandler.UpdateProfile)
 		userGroup.POST("/avatar", userHandler.UploadAvatar)
+		userGroup.DELETE("/avatar", userHandler.DeleteAvatar)
 		userGroup.POST("/buy-hint", userHandler.BuyHint)
 	}
 

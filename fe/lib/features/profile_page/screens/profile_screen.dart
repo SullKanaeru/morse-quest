@@ -153,7 +153,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
           hints: user.hints,
           avatarUrl: user.avatarUrl,
           onEditUsername: () => _showEditUsernameDialog(context, userProvider),
-          onEditAvatar: () => _pickAndUploadAvatar(context, userProvider),
+          onEditAvatar: () {
+            if (user.avatarUrl.isNotEmpty) {
+              _showAvatarOptions(context, userProvider);
+            } else {
+              _pickAndUploadAvatar(context, userProvider);
+            }
+          },
+        );
+      },
+    );
+  }
+
+  void _showAvatarOptions(BuildContext context, UserProvider userProvider) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt, color: Color(0xFF0277BD)),
+                title: const Text('Ganti Foto'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickAndUploadAvatar(context, userProvider);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('Hapus Foto', style: TextStyle(color: Colors.red)),
+                onTap: () async {
+                  Navigator.pop(context);
+                  final success = await userProvider.deleteAvatar();
+                  if (success && mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Foto berhasil dihapus')),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
         );
       },
     );
@@ -161,7 +206,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _pickAndUploadAvatar(BuildContext context, UserProvider userProvider) async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    XFile? pickedFile;
+    
+    try {
+      pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    } catch (e) {
+      // Abaikan jika picker sudah aktif (misalnya karena double-tap)
+      return;
+    }
 
     if (pickedFile != null) {
       if (!mounted) return;

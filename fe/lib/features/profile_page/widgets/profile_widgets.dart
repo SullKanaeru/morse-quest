@@ -107,7 +107,8 @@ class ProfileInfoCard extends StatelessWidget {
     this.onEditAvatar,
   });
 
-  ImageProvider _getAvatarProvider() {
+  ImageProvider? _getAvatarProvider() {
+    if (avatarUrl.isEmpty) return null;
     if (avatarUrl.startsWith('http')) {
       return NetworkImage(avatarUrl);
     }
@@ -149,6 +150,9 @@ class ProfileInfoCard extends StatelessWidget {
                     radius: 40,
                     backgroundColor: Colors.grey.shade300,
                     backgroundImage: _getAvatarProvider(),
+                    child: avatarUrl.isEmpty
+                        ? Icon(Icons.person, size: 50, color: Colors.grey.shade500)
+                        : null,
                   ),
                 ),
               ),
